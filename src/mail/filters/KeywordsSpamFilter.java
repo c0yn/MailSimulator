@@ -26,10 +26,13 @@ public class KeywordsSpamFilter implements SpamFilter {
     @Override
     public boolean isSpam(Message message) {
         List<String> messageWords = new ArrayList<>();
-        Matcher matcher = Pattern.compile("\\b[а-яА-ЯёЁa-zA-Z0-9]+\\b")
-                .matcher(message.getCaption() + " " + message.getText());
-        while (matcher.find()) {
-            messageWords.add(matcher.group().toLowerCase());
+        String[] temporalMessageWords = (message.getCaption() + " " + message.getText())
+                .toLowerCase()
+                .split("[^а-яёa-z0-9]");
+        for (String potentialWord : temporalMessageWords) {
+            if (!potentialWord.isEmpty()) {
+                messageWords.add(potentialWord);
+            }
         }
 
         return messageWords.stream().anyMatch(keywordsSpam::contains);
