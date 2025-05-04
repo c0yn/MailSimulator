@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserStorage {
-    private List<User> usersList;
+    private final List<User> usersList;
 
     public UserStorage() {
         this.usersList = new ArrayList<>();

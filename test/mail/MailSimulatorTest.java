@@ -2,12 +2,7 @@ package mail;
 
 import mail.exceptions.filters.IllegalKeywordArgumentException;
 import mail.exceptions.filters.IllegalRepetitionArgumentException;
-import mail.exceptions.storage.EmptyUserNameException;
-import mail.exceptions.storage.UserAlreadyExistsException;
 import mail.exceptions.storage.UserNotFoundException;
-import mail.filters.KeywordsSpamFilter;
-import mail.filters.SimpleSpamFilter;
-import mail.filters.SpamFilter;
 import mail.storage.User;
 import mail.storage.UserStorage;
 import org.junit.jupiter.api.Test;

@@ -11,9 +11,8 @@ class KeywordsSpamFilterTest {
 
     @Test
     void exceptionThrowTest() {
-        Exception exception = assertThrows(IllegalKeywordArgumentException.class, () -> {
-            new KeywordsSpamFilter("valid valid1 валид валид1 !nvalid инв@лид");
-        });
+        Exception exception = assertThrows(IllegalKeywordArgumentException.class, () ->
+                new KeywordsSpamFilter("valid valid1 валид валид1 !nvalid инв@лид"));
 
         assertTrue(exception.getMessage().contains("Недопустимое ключевое слово спама: "));
     }

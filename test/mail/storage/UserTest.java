@@ -47,18 +47,6 @@ class UserTest {
         assertEquals(message, user.getSpam().getFirst());
     }
 
-//    @Test
-//    void setSpamFilterTest() {
-//        User user = new User("1");
-//        CompositeSpamFilter spamFilter = new CompositeSpamFilter();
-//        spamFilter.addSpamFilter(new SimpleSpamFilter());
-//        spamFilter.addSpamFilter(new KeywordsSpamFilter("1 2 3 4 5"));
-//        spamFilter.addSpamFilter(new RepetitionSpamFilter("5"));
-//        spamFilter.addSpamFilter(new SenderSpamFilter("2"));
-//
-//
-//    }
-
     @Test
     void sendMessageTest() {
         User user = new User("1");

@@ -224,8 +224,10 @@ public class MailSimulator {
     }
 
     public void startMailSimulator() {
-        output.print("Здравствуй, пользователь! Это почтовый симулятор.\n" +
-                "Руководство пользователя ты сможешь прочитать в файле README.txt\n>");
+        output.print("""
+                Здравствуй, пользователь! Это почтовый симулятор.
+                Руководство пользователя ты сможешь прочитать в файле README.txt
+                >""");
         String input = scanner.nextLine();
 
         while (!input.equalsIgnoreCase("quit")) {

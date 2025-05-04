@@ -18,13 +18,11 @@ class UserStorageTest {
     @Test
     void addNewUserTest() {
         UserStorage userStorage = new UserStorage();
-        Exception exception1 = assertThrows(EmptyUserNameException.class, () -> {
-            userStorage.addNewUser("");
-        });
+        Exception exception1 = assertThrows(EmptyUserNameException.class, () ->
+                userStorage.addNewUser(""));
         userStorage.addNewUser("1");
-        Exception exception2 = assertThrows(UserAlreadyExistsException.class, () -> {
-            userStorage.addNewUser("1");
-        });
+        Exception exception2 = assertThrows(UserAlreadyExistsException.class, () ->
+                userStorage.addNewUser("1"));
 
         assertAll(
                 () -> assertEquals("Пустое имя пользователя", exception1.getMessage()),
@@ -38,9 +36,8 @@ class UserStorageTest {
     void getUserTest() {
         UserStorage userStorage = new UserStorage();
         userStorage.addNewUser("1");
-        Exception exception1 = assertThrows(UserNotFoundException.class, () -> {
-            userStorage.getUser("_1_");
-        });
+        Exception exception1 = assertThrows(UserNotFoundException.class, () ->
+                userStorage.getUser("_1_"));
         assertAll(
                 () -> assertEquals("Ошибка. Пользователя с именем '_1_' не существует",
                         exception1.getMessage()),

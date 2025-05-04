@@ -10,9 +10,8 @@ class SenderSpamFilterTest {
 
     @Test
     void exceptionThrowTest() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            new SenderSpamFilter("");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                new SenderSpamFilter(""));
 
         assertTrue(exception.getMessage().contains("Имя пользователя отправителя для спама не может быть пустым."));
     }

@@ -9,9 +9,9 @@ import java.util.List;
 
 public class User {
     private final String userName;
-    private List<Message> inbox;
-    private List<Message> outbox;
-    private List<Message> spam;
+    private final List<Message> inbox;
+    private final List<Message> outbox;
+    private final List<Message> spam;
     private SpamFilter spamFilter;
 
     public User(String userName) {
