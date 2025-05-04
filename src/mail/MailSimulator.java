@@ -9,124 +9,136 @@ import mail.filters.*;
 import mail.storage.User;
 import mail.storage.UserStorage;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MailSimulator {
-    private static void addNewUser(UserStorage userStorage, Scanner in) {
+    private final UserStorage userStorage;
+    private final Scanner scanner;
+    private final PrintStream output;
+
+    public MailSimulator(UserStorage userStorage, InputStream input, PrintStream output) {
+        this.userStorage = userStorage;
+        this.scanner = new Scanner(input);
+        this.output = output;
+    }
+
+    void addNewUser() {
         // Метод для создания нового пользователя и отлавливания ошибок
-        System.out.print("Введите имя нового пользователя: ");
-        String input = in.nextLine();
+        output.print("Введите имя нового пользователя: ");
+        String input = scanner.nextLine();
         try {
             userStorage.addNewUser(input);
-            System.out.print("\nСоздан пользователь с именем '" + input + "'\n>");
+            output.print("\nСоздан пользователь с именем '" + input + "'\n>");
         }
         catch (EmptyUserNameException | UserAlreadyExistsException exception) {
-            System.out.print("\n" + exception.getMessage() + "\n>");
+            output.print("\n" + exception.getMessage() + "\n>");
         }
     }
 
-    private static void showUserList(UserStorage userStorage) {
+    void showUserList() {
         // Метод для вывода списка пользователей
-        System.out.print("\nСписок имен пользователей:");
-        AtomicInteger num = new AtomicInteger(0);
+        output.print("\nСписок имен пользователей:");
+        AtomicInteger counter = new AtomicInteger(0);
         userStorage.getUsersList().forEach(user ->
-                System.out.print("\n" + num.incrementAndGet() + " '" + user.getUserName() + "'"));
-        System.out.print("\nВсего: " + num + " пользоват.\n>");
+                output.print("\n" + counter.incrementAndGet() + " '" + user.getUserName() + "'"));
+        output.print("\nВсего: " + counter + " пользоват.\n>");
     }
 
-    private static User askUserName(String mode, UserStorage userStorage, Scanner in)
+    User askUserName(String mode)
             throws UserNotFoundException {
         // Метод для обработки различных ситуаций, в которых нужно узнать имя пользователя
         switch (mode) {
-            case "sender" -> System.out.print("\nВведите имя пользователя отправителя: ");
-            case "view" -> System.out.print("\nВведите имя пользователя для показа: ");
-            case "receiver" -> System.out.print("\nВведите имя пользователя получателя: ");
-            case "setfilter" -> System.out.print("\nВведите имя пользователя для установки фильтров: ");
+            case "sender" -> output.print("\nВведите имя пользователя отправителя: ");
+            case "view" -> output.print("\nВведите имя пользователя для показа: ");
+            case "receiver" -> output.print("\nВведите имя пользователя получателя: ");
+            case "setfilter" -> output.print("\nВведите имя пользователя для установки фильтров: ");
         }
-        String input = in.nextLine();
+        String input = scanner.nextLine();
         return userStorage.getUser(input);
     }
 
-    private static void showCurrentMessage(Message currentMessage) {
+    void showCurrentMessage(Message currentMessage) {
         // Метод для вывода заданного сообщения
-        System.out.print("\nОтправитель: " + currentMessage.getSender().getUserName() +
+        output.print("\nОтправитель: " + currentMessage.getSender().getUserName() +
                 "\nПолучатель: " + currentMessage.getReceiver().getUserName() +
                 "\nЗаголовок письма:\n" + currentMessage.getCaption() +
                 "\nТекст письма:\n" + currentMessage.getText());
     }
 
-    private static void showCurrentUserInfo(String mode, User currentUser) {
+    void showCurrentUserInfo(String mode, User currentUser) {
         // Метод для обработки данных при выводе либо inbox, либо outbox, либо spam
         switch (mode) {
             case "inbox" -> {
                 List<Message> currentUserInbox = currentUser.getInbox();
-                System.out.print("\nВходящие письма пользователя с именем '" + currentUser.getUserName() + "'");
+                output.print("\nВходящие письма пользователя с именем '" + currentUser.getUserName() + "'");
                 for (Message inboxMessage : currentUserInbox) {
-                    System.out.print("\n=========================");
+                    output.print("\n=========================");
                     showCurrentMessage(inboxMessage);
                 }
             }
             case "outbox" -> {
                 List<Message> currentUserOutbox = currentUser.getOutbox();
-                System.out.print("\nИсходящие письма пользователя с именем '" + currentUser.getUserName() + "'");
+                output.print("\nИсходящие письма пользователя с именем '" + currentUser.getUserName() + "'");
                 for (Message outboxMessage : currentUserOutbox) {
-                    System.out.print("\n=========================");
+                    output.print("\n=========================");
                     showCurrentMessage(outboxMessage);
                 }
             }
             case "spam" -> {
                 List<Message> currentUserSpam = currentUser.getSpam();
-                System.out.print("\nСпам письма пользователя с именем '" + currentUser.getUserName() + "'");
+                output.print("\nСпам письма пользователя с именем '" + currentUser.getUserName() + "'");
                 for (Message spamMessage : currentUserSpam) {
-                    System.out.print("\n=========================");
+                    output.print("\n=========================");
                     showCurrentMessage(spamMessage);
                 }
             }
         }
-        System.out.print("\n=========================");
+        output.print("\n==========================");
     }
 
-    private static void showUserInfo(String input, UserStorage userStorage, Scanner in) {
+    void showUserInfo(String input) {
         // Метод для предварительной обработки данных при выводе либо inbox, либо outbox, либо spam
         try {
-            User currentUser = askUserName("view", userStorage, in);
+            User currentUser = askUserName("view");
             showCurrentUserInfo(input.toLowerCase(), currentUser);
-            System.out.print("\n>");
+            output.print("\n>");
         }
         catch (UserNotFoundException exception) {
-            System.out.print("\n" + exception.getMessage() + "\n>");
+            output.print("\n" + exception.getMessage() + "\n>");
         }
     }
 
-    private static String askMessageInfo(String mode, Scanner in) {
+    String askMessageInfo(String mode) {
         // Дополнительный метод, убирающий лишнюю "грязь" из кода
         if (mode.equals("caption")) {
-            System.out.print("\nВведите заголовок письма:\n");
+            output.print("\nВведите заголовок письма:\n");
         }
         else if (mode.equals("text")) {
-            System.out.print("\nВведите текст письма:\n");
+            output.print("\nВведите текст письма:\n");
         }
-        return in.nextLine();
+        return scanner.nextLine();
     }
 
-    private static void sendMessage(UserStorage userStorage, Scanner in) {
+    void sendMessage() {
         // Метод для обработки входящих данных и отправления сообщения
         try {
-            User sender = askUserName("sender", userStorage, in);
-            User receiver = askUserName("receiver", userStorage, in);
-            String caption = askMessageInfo("caption", in);
-            String text = askMessageInfo("text", in);
+            User sender = askUserName("sender");
+            User receiver = askUserName("receiver");
+            String caption = askMessageInfo("caption");
+            String text = askMessageInfo("text");
             sender.sendMessage(caption, text, receiver);
-            System.out.print("\nСообщение отправлено\n>");
+            output.print("\nСообщение отправлено\n>");
         }
         catch (UserNotFoundException exception) {
-            System.out.print("\n" + exception.getMessage() + "\n>");
+            output.print("\n" + exception.getMessage() + "\n>");
         }
     }
 
-    private static SpamFilter askFilterInfo(String input, Scanner in)
+    SpamFilter askFilterInfo(String input)
             throws IllegalRepetitionArgumentException, IllegalKeywordArgumentException,
             IllegalArgumentException {
         // Метод для обработки входных данных и созданию по ним определенных фильтров
@@ -135,20 +147,20 @@ public class MailSimulator {
                 return new SimpleSpamFilter();
             }
             case "keywords" -> {
-                System.out.print("\nВведите ключевые слова через пробел: ");
-                input = in.nextLine();
+                output.print("\nВведите ключевые слова через пробел: ");
+                input = scanner.nextLine();
 
                 return new KeywordsSpamFilter(input);
             }
             case "repetition" -> {
-                System.out.print("\nВведите максимальное число повторений слов в письме: ");
-                input = in.nextLine();
+                output.print("\nВведите максимальное число повторений слов в письме: ");
+                input = scanner.nextLine();
 
                 return new RepetitionSpamFilter(input);
             }
             case "sender" -> {
-                System.out.print("\nВведите имя пользователя: ");
-                input = in.nextLine();
+                output.print("\nВведите имя пользователя: ");
+                input = scanner.nextLine();
 
                 return new SenderSpamFilter(input);
             }
@@ -156,77 +168,72 @@ public class MailSimulator {
         }
     }
 
-    private static void setFilter(String mode, UserStorage userStorage, Scanner in) {
+    void setFilter(String mode) {
         // Метод для обработки входных данных и создания спам-фильтра пользователя
         try {
-            User currentUser = askUserName(mode, userStorage, in);
+            User currentUser = askUserName(mode);
             CompositeSpamFilter newSpamFilter = new CompositeSpamFilter();
-            System.out.print("\nВведите название фильтра: ");
-            String input = in.nextLine();
+            output.print("\nВведите название фильтра: ");
+            String input = scanner.nextLine();
             while (!input.equalsIgnoreCase("done")) {
                 try {
-                    newSpamFilter.addSpamFilter(askFilterInfo(input.toLowerCase(), in));
+                    newSpamFilter.addSpamFilter(askFilterInfo(input.toLowerCase()));
                 }
                 catch (IllegalKeywordArgumentException |
                        IllegalRepetitionArgumentException |
                        IllegalArgumentException
                         exception) {
-                    System.out.print("\n" + exception.getMessage() + "\n");
+                    output.print("\n" + exception.getMessage() + "\n");
                 }
 
-                System.out.print("\nВведите название фильтра: ");
-                input = in.nextLine();
+                output.print("\nВведите название фильтра: ");
+                input = scanner.nextLine();
             }
             currentUser.setSpamFilter(newSpamFilter);
-            System.out.print("\nСпам фильтр успешно установлен\n>");
+            output.print("\nСпам фильтр успешно установлен\n>");
         }
         catch (UserNotFoundException exception) {
-            System.out.print("\n" + exception.getMessage() + "\n>");
+            output.print("\n" + exception.getMessage() + "\n>");
         }
     }
 
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        System.out.print("Здравствуй, пользователь! Это почтовый симулятор.\n" +
+    void processCommand(String command) {
+        // Метод для обработки и запуска команд пользователя
+        if (command.equalsIgnoreCase("add")) {
+            addNewUser();
+        }
+        else if (command.equalsIgnoreCase("list")) {
+            showUserList();
+        }
+        else if (command.equalsIgnoreCase("send")) {
+            sendMessage();
+        }
+        else if (command.equalsIgnoreCase("inbox") ||
+                command.equalsIgnoreCase("outbox") ||
+                command.equalsIgnoreCase("spam")) {
+            showUserInfo(command);
+        }
+        else if (command.equalsIgnoreCase("setfilter")) {
+            setFilter(command.toLowerCase());
+        }
+        else {
+            output.print("\nВведенная команда '" + command +
+                    "' не поддерживается.\nВы можете ознакомиться" +
+                    " с руководством пользователя, открыв файл README.txt\n>");
+        }
+    }
+
+    public void startMailSimulator() {
+        output.print("Здравствуй, пользователь! Это почтовый симулятор.\n" +
                 "Руководство пользователя ты сможешь прочитать в файле README.txt\n>");
-        String input = in.nextLine();
-        UserStorage userStorage = new UserStorage();
+        String input = scanner.nextLine();
 
         while (!input.equalsIgnoreCase("quit")) {
-            if (input.equalsIgnoreCase("add")) {
-                addNewUser(userStorage, in);
+            processCommand(input);
 
-                input = in.nextLine();
-            }
-            else if (input.equalsIgnoreCase("list")) {
-                showUserList(userStorage);
-
-                input = in.nextLine();
-            }
-            else if (input.equalsIgnoreCase("send")) {
-                sendMessage(userStorage, in);
-
-                input = in.nextLine();
-            }
-            else if (input.equalsIgnoreCase("inbox") ||
-                    input.equalsIgnoreCase("outbox") ||
-                    input.equalsIgnoreCase("spam")) {
-                showUserInfo(input, userStorage, in);
-
-                input = in.nextLine();
-            }
-            else if (input.equalsIgnoreCase("setfilter")) {
-                setFilter(input.toLowerCase(), userStorage, in);
-
-                input = in.nextLine();
-            }
-            else {
-                System.out.print("\nВведенная команда '" + input +
-                        "' не поддерживается.\nВы можете ознакомиться" +
-                        " с руководством пользователя, открыв файл README.txt\n>");
-
-                input = in.nextLine();
-            }
+            input = scanner.nextLine();
         }
+
+        output.print("\nСпасибо! До новых встреч!");
     }
 }
