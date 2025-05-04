@@ -4,8 +4,6 @@ import mail.Message;
 import mail.exceptions.filters.IllegalKeywordArgumentException;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class KeywordsSpamFilter implements SpamFilter {

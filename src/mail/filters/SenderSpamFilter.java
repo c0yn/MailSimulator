@@ -1,7 +1,6 @@
 package mail.filters;
 
 import mail.Message;
-import mail.exceptions.storage.EmptyUserNameException;
 
 public class SenderSpamFilter implements SpamFilter {
     private final String userSpam;
