@@ -30,10 +30,11 @@ public class RepetitionSpamFilter implements SpamFilter {
     @Override
     public boolean isSpam(Message message) {
         List<String> messageWords = new ArrayList<>();
-        Matcher matcher = Pattern.compile("\\b[а-яА-ЯёЁa-zA-Z0-9]+\\b")
-                .matcher(message.getText());
-        while (matcher.find()) {
-            messageWords.add(matcher.group().toLowerCase());
+        String[] temporalMessageWords = message.getText().toLowerCase().split("[^а-яёa-z0-9]");
+        for (String potentialWord : temporalMessageWords) {
+            if (!potentialWord.isEmpty()) {
+                messageWords.add(potentialWord);
+            }
         }
 
         Map<String, Long> frequencyMessageWordsMap = messageWords.stream()
